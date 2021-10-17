@@ -20,7 +20,9 @@ jobs:
           gu install native-image
 
       - name: Build
-        run: ./gradlew build
+        run: |
+          chmod a+x ./gradlew
+          ./gradlew build
 
       - name: Packpage native
         run: ./gradlew nativeBuild
