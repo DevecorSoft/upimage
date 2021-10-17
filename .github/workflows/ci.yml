@@ -1,0 +1,34 @@
+name: ci/cd
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  cicd:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.4
+
+      - name: Install GraalVM
+        run: |
+          curl -s "https://get.sdkman.io" | bash
+          source "$HOME/.sdkman/bin/sdkman-init.sh"
+          sdk install java 21.2.0.r11-grl
+          gu install native-image
+
+      - name: Build
+        run: ./gradlew build
+
+      - name: Packpage native
+        run: ./gradlew nativeBuild
+
+      - name: Publish native app
+        run: |
+          git clone https://github.com/clarkwang/passh.git
+          gcc ./passh/passh.c -o passhe
+          curl --location --request POST '${{ secrets.HOST }}/actuator/shutdown'
+          ./passhe -p '${{ secrets.ACCESS_TOKEN }}' scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no  $PWD/build/native/nativeBuild/upimage ${{ secrets.TARGET_HOME }}
+          ./passhe -p '${{ secrets.ACCESS_TOKEN }}' ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${{ secrets.TARGET }} "./upimage > upimage.log &"
