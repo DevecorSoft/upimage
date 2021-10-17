@@ -27,7 +27,7 @@ $PWD/build/native/nativeBuild/upimage --upimage.host='http://localhost:8080'
 * use env
 
 ```shell
-upimage_host=http://localhost:8080
+export upimage_host=http://localhost:8080
 $PWD/build/native/nativeBuild/upimage
 ```
 
