@@ -8,11 +8,12 @@ import java.io.File
 @Repository
 class ImageRepository(
     @Value("\${upimage.home}")
-    private val homePath: String
+    private val homePath: String,
+    @Value("\${user.home}")
+    private val userHome: String,
 ) {
 
     fun save(file: MultipartFile, path: String) {
-        val userHome = System.getProperty("user.home")
         val dest = File("$userHome$homePath$path/${file.originalFilename}")
         if (!dest.exists()) {
             dest.mkdirs()

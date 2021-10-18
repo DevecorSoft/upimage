@@ -10,8 +10,9 @@ import java.io.File
 
 @ExtendWith(MockitoExtension::class)
 internal class ImageRepositoryTest {
-    val homePath = ""
-    private val imageRepository = ImageRepository(homePath)
+    private val homePath = ""
+    private val userHome = ""
+    private val imageRepository = ImageRepository(homePath, userHome)
 
     @Mock
     private lateinit var multipartFile: MultipartFile
