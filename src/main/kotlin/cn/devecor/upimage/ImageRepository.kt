@@ -22,7 +22,7 @@ class ImageRepository(
     }
 
     fun get(filepath: String): File? {
-        val file = File(filepath)
+        val file = File("$userHome$homePath$filepath")
         return if (file.exists()) file else null
     }
 }
