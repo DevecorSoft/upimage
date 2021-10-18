@@ -15,23 +15,20 @@ import org.springframework.web.multipart.MultipartFile
 
 @ExtendWith(MockitoExtension::class)
 internal class UploadImageControllerTest {
+    @Mock
+    private lateinit var imageStorageService: ImageStorageService
 
+    @Mock
+    private lateinit var multipartFile: MultipartFile
+
+    @InjectMocks
+    private lateinit var uploadImageController: UploadImageController
 
     @Nested
     @DisplayName("handle images uploading")
-    inner class HandleImageUpload {
-
-        @InjectMocks
-        private lateinit var uploadImageController: UploadImageController
-
-        @Mock
-        private lateinit var multipartFile: MultipartFile
-
-        @Mock
-        private lateinit var imageStorageService: ImageStorageService
-
+    inner class PostImage {
         @Test
-        fun `should get a markdown link for image`() {
+        fun `should return a markdown link for image`() {
 
             val link = "![avatar.jpg](avatar.jpg)"
             `when`(imageStorageService.handleImage(multipartFile)).thenReturn(link)
@@ -40,6 +37,24 @@ internal class UploadImageControllerTest {
 
             assertThat(result.statusCode).isEqualTo(HttpStatus.OK)
             assertThat(result.body).isEqualTo(link)
+        }
+    }
+
+    @Nested
+    @DisplayName("handle get image")
+    inner class GetImage {
+        @Nested
+        @DisplayName("when image is not existed")
+        inner class NotExisted {
+            @Test
+            fun `should return 404 as http status and null as body`() {
+                `when`(imageStorageService.getImage("")).thenReturn(null)
+
+                val result = uploadImageController.getImage("xxx", "xxx.jpg")
+
+                assertThat(result.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+                assertThat(result.body).isNull()
+            }
         }
     }
 }
