@@ -20,4 +20,8 @@ class ImageRepository(
         }
         file.transferTo(dest)
     }
+
+    fun get(filepath: String): File? {
+        return null
+    }
 }
