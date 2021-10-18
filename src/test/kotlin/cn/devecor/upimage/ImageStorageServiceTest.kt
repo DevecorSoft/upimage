@@ -2,12 +2,15 @@ package cn.devecor.upimage
 
 import cn.devecor.upimage.util.TimeStampSupplier
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.web.multipart.MultipartFile
+import java.io.File
 import java.util.Calendar
 
 @ExtendWith(MockitoExtension::class)
@@ -23,6 +26,7 @@ internal class ImageStorageServiceTest {
     private lateinit var imageRepository: ImageRepository
 
     private val host = "http://fake.devecor.cn"
+    private val testHome = "unittest"
 
     @Test
     fun `should return a markdown image link`() {
@@ -37,4 +41,28 @@ internal class ImageStorageServiceTest {
         assertThat(imageStorageService.handleImage(multipartFile))
             .isEqualTo("![$filename]($host/$timestamp/$filename)")
     }
+
+    @Test
+    fun `should get an image file`() {
+        val expectedFile = createFile()
+
+        `when`(imageRepository.get("")).thenReturn(expectedFile)
+
+        val imageStorageService = ImageStorageService(host, imageRepository, timeStampSupplier)
+        val file = imageStorageService.getImage("")
+
+        assertThat(file).isFile
+        assertThat(file).isEqualTo(expectedFile)
+    }
+
+    private fun createFile(): File {
+        File(testHome).mkdir()
+        val expectedFile = File("$testHome/text.txt")
+        expectedFile.writeText("")
+        return expectedFile
+    }
+
+    @BeforeEach
+    @AfterEach
+    fun cleanTestFolder() = File(testHome).deleteRecursively()
 }
