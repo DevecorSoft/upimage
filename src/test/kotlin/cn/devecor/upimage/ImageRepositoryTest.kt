@@ -43,26 +43,27 @@ internal class ImageRepositoryTest {
 
         @Nested
         @DisplayName("when image file is existed")
-        inner class FileExisted
+        inner class FileExisted {
 
-        @Test
-        fun `should get file`() {
-            val file = imageRepository.get("$testHome/text.txt")
+            @Test
+            fun `should get file`() {
+                val file = imageRepository.get("$testHome/text.txt")
 
-            assertThat(file?.exists()).isTrue
-            assertThat(file).isFile
-        }
+                assertThat(file?.exists()).isTrue
+                assertThat(file).isFile
+            }
 
-        @BeforeEach
-        fun setup() {
-            createFile()
-        }
+            @BeforeEach
+            fun setup() {
+                createFile()
+            }
 
-        private fun createFile(): File {
-            File(testHome).mkdir()
-            val expectedFile = File("$testHome/text.txt")
-            expectedFile.writeText("")
-            return expectedFile
+            private fun createFile(): File {
+                File(testHome).mkdir()
+                val expectedFile = File("$testHome/text.txt")
+                expectedFile.writeText("")
+                return expectedFile
+            }
         }
     }
 

@@ -22,6 +22,7 @@ class ImageRepository(
     }
 
     fun get(filepath: String): File? {
-        return null
+        val file = File(filepath)
+        return if (file.exists()) file else null
     }
 }
