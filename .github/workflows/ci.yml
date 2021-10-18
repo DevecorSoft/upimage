@@ -33,4 +33,4 @@ jobs:
           gcc ./passh/passh.c -o passhe
           curl --location --request POST '${{ secrets.HOST }}/actuator/shutdown'
           ./passhe -p '${{ secrets.ACCESS_TOKEN }}' scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no  $PWD/build/native/nativeBuild/upimage ${{ secrets.TARGET_HOME }}
-          ./passhe -p '${{ secrets.ACCESS_TOKEN }}' ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${{ secrets.TARGET }} "./upimage > upimage.log &"
+          ./passhe -p '${{ secrets.ACCESS_TOKEN }}' ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${{ secrets.TARGET }} "source .bashrc; ./upimage > upimage.log &"
