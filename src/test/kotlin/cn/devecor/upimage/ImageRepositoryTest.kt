@@ -1,6 +1,7 @@
 package cn.devecor.upimage
 
-import org.junit.jupiter.api.Test
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.Mockito.verify
@@ -12,6 +13,7 @@ import java.io.File
 internal class ImageRepositoryTest {
     private val homePath = ""
     private val userHome = ""
+    private val testHome = "unittest"
     private val imageRepository = ImageRepository(homePath, userHome)
 
     @Mock
@@ -22,5 +24,51 @@ internal class ImageRepositoryTest {
         val subPath = "/sub_path"
         imageRepository.save(multipartFile, subPath)
         verify(multipartFile).transferTo(File("${System.getProperty("user.home")}$homePath$subPath/${multipartFile.originalFilename}"))
+    }
+
+    @Nested
+    @DisplayName("query file by path")
+    inner class QueryFileByPath {
+
+        @Nested
+        @DisplayName("when image file is not existed")
+        inner class FileNotExisted {
+            @Test
+            fun `should get null`() {
+                val file = imageRepository.get("not existed")
+
+                assertThat(file).isNull()
+            }
+        }
+
+        @Nested
+        @DisplayName("when image file is existed")
+        inner class FileExisted
+
+        @Test
+        fun `should get file`() {
+            val file = imageRepository.get("$testHome/text.txt")
+
+            assertThat(file?.exists()).isTrue
+            assertThat(file).isFile
+        }
+
+        @BeforeEach
+        fun setup() {
+            createFile()
+        }
+
+        private fun createFile(): File {
+            File(testHome).mkdir()
+            val expectedFile = File("$testHome/text.txt")
+            expectedFile.writeText("")
+            return expectedFile
+        }
+    }
+
+    @BeforeEach
+    @AfterEach
+    fun cleanTestFolder() {
+        File(testHome).deleteRecursively()
     }
 }
