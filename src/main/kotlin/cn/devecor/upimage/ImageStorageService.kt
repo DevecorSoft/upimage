@@ -20,5 +20,5 @@ class ImageStorageService(
         return MarkdownImg(file.originalFilename!!, "$host$path/${file.originalFilename}").link
     }
 
-    fun getImage(subPath: String) = imgRepository.get(subPath)!!
+    fun getImage(subPath: String) = imgRepository.get(subPath)
 }
