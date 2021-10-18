@@ -2,9 +2,7 @@ package cn.devecor.upimage
 
 import cn.devecor.upimage.util.TimeStampSupplier
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
@@ -28,9 +26,15 @@ internal class ImageStorageServiceTest {
     private val host = "http://fake.devecor.cn"
     private val testHome = "unittest"
 
+    private lateinit var imageStorageService: ImageStorageService
+
+    @BeforeEach
+    fun setup() {
+        imageStorageService = ImageStorageService(host, imageRepository, timeStampSupplier)
+    }
+
     @Test
     fun `should return a markdown image link`() {
-        val imageStorageService = ImageStorageService(host, imageRepository, timeStampSupplier)
 
         val filename = "avatar.jpg"
         val timestamp = Calendar.Builder().setDate(2020, 9, 22).build().timeInMillis
@@ -42,17 +46,41 @@ internal class ImageStorageServiceTest {
             .isEqualTo("![$filename]($host/$timestamp/$filename)")
     }
 
-    @Test
-    fun `should get an image file`() {
-        val expectedFile = createFile()
+    @Nested
+    @DisplayName("get image")
+    inner class GetImage {
 
-        `when`(imageRepository.get(expectedFile.path)).thenReturn(expectedFile)
+        @Nested
+        @DisplayName("when image file is not existed")
+        inner class ImageNotExisted {
+            @Test
+            fun `should return a null`() {
 
-        val imageStorageService = ImageStorageService(host, imageRepository, timeStampSupplier)
-        val file = imageStorageService.getImage(expectedFile.path)
+                `when`(imageRepository.get("")).thenReturn(null)
 
-        assertThat(file).isFile
-        assertThat(file).isEqualTo(expectedFile)
+                val file = imageStorageService.getImage("")
+
+                assertThat(file).isNull()
+            }
+        }
+
+        @Nested
+        @DisplayName("when image file is existed")
+        inner class ImageExisted {
+
+            @Test
+            fun `should return an image file`() {
+                val expectedFile = createFile()
+
+                `when`(imageRepository.get(expectedFile.path)).thenReturn(expectedFile)
+
+                val imageStorageService = ImageStorageService(host, imageRepository, timeStampSupplier)
+                val file = imageStorageService.getImage(expectedFile.path)
+
+                assertThat(file).isFile
+                assertThat(file).isEqualTo(expectedFile)
+            }
+        }
     }
 
     private fun createFile(): File {
