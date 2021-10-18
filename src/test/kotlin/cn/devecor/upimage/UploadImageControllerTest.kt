@@ -48,7 +48,7 @@ internal class UploadImageControllerTest {
         inner class NotExisted {
             @Test
             fun `should return 404 as http status and null as body`() {
-                `when`(imageStorageService.getImage("")).thenReturn(null)
+                `when`(imageStorageService.getImage("/xxx/xxx.jpg")).thenReturn(null)
 
                 val result = uploadImageController.getImage("xxx", "xxx.jpg")
 

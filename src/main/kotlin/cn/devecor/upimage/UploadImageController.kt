@@ -19,6 +19,9 @@ class UploadImageController(
     @CrossOrigin
     @GetMapping(Endpoints.GET_IMAGE)
     fun getImage(@PathVariable path: String, @PathVariable filename: String): ResponseEntity<Resource> {
+
+        imageStorageService.getImage("/$path/$filename") ?: return ResponseEntity.notFound().build()
+
         return ResponseEntity.ok(null)
     }
 }
