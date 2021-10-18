@@ -46,10 +46,10 @@ internal class ImageStorageServiceTest {
     fun `should get an image file`() {
         val expectedFile = createFile()
 
-        `when`(imageRepository.get("")).thenReturn(expectedFile)
+        `when`(imageRepository.get(expectedFile.path)).thenReturn(expectedFile)
 
         val imageStorageService = ImageStorageService(host, imageRepository, timeStampSupplier)
-        val file = imageStorageService.getImage("")
+        val file = imageStorageService.getImage(expectedFile.path)
 
         assertThat(file).isFile
         assertThat(file).isEqualTo(expectedFile)
@@ -64,5 +64,7 @@ internal class ImageStorageServiceTest {
 
     @BeforeEach
     @AfterEach
-    fun cleanTestFolder() = File(testHome).deleteRecursively()
+    fun cleanTestFolder() {
+        File(testHome).deleteRecursively()
+    }
 }

@@ -5,7 +5,6 @@ import cn.devecor.upimage.util.TimeStampSupplier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
-import java.io.File
 
 @Service
 class ImageStorageService(
@@ -21,7 +20,5 @@ class ImageStorageService(
         return MarkdownImg(file.originalFilename!!, "$host$path/${file.originalFilename}").link
     }
 
-    fun getImage(subPath: String): File {
-        return File("")
-    }
+    fun getImage(subPath: String) = imgRepository.get(subPath)!!
 }
