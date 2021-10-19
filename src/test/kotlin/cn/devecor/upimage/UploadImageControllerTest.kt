@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.core.io.InputStreamResource
 import org.springframework.core.io.Resource
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.web.multipart.MultipartFile
 import java.io.File
 
@@ -75,11 +76,14 @@ internal class UploadImageControllerTest {
 
             @Test
             fun `should return an instance of inputStreamResource as body`() {
-                `when`(imageStorageService.getImage("/xxx/xxx.jpg")).thenReturn(File("src/test/resources/asset/avatar.jpg"))
+                val file = File("src/test/resources/asset/avatar.jpg")
+                `when`(imageStorageService.getImage("/xxx/xxx.jpg")).thenReturn(file)
 
                 val result = uploadImageController.getImage("xxx", "xxx.jpg")
 
-                assertThat(result.body).isInstanceOf(InputStreamResource::class.java)
+                assertThat(result.body is InputStreamResource).isTrue
+                assertThat(result.headers.contentType).isEqualTo(MediaType.APPLICATION_OCTET_STREAM)
+                assertThat(result.headers.contentLength).isEqualTo(file.length())
             }
         }
     }

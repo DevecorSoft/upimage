@@ -1,10 +1,12 @@
 package cn.devecor.upimage
 
+import org.springframework.core.io.InputStreamResource
 import org.springframework.core.io.Resource
-import org.springframework.core.io.UrlResource
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
+import java.io.FileInputStream
 
 @RestController
 class UploadImageController(
@@ -23,6 +25,9 @@ class UploadImageController(
 
         val file = imageStorageService.getImage("/$path/$filename") ?: return ResponseEntity.notFound().build()
 
-        return ResponseEntity.ok(UrlResource(file.toURI()))
+        return ResponseEntity.ok()
+            .contentLength(file.length())
+            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+            .body(InputStreamResource(FileInputStream(file)))
     }
 }
