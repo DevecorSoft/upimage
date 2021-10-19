@@ -10,6 +10,7 @@ import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.junit.jupiter.MockitoExtension
+import org.springframework.core.io.InputStreamResource
 import org.springframework.core.io.Resource
 import org.springframework.http.HttpStatus
 import org.springframework.web.multipart.MultipartFile
@@ -70,6 +71,15 @@ internal class UploadImageControllerTest {
 
                 assertThat(result.statusCode).isEqualTo(HttpStatus.OK)
                 assertThat((result.body as Resource).exists()).isTrue
+            }
+
+            @Test
+            fun `should return an instance of inputStreamResource as body`() {
+                `when`(imageStorageService.getImage("/xxx/xxx.jpg")).thenReturn(File("src/test/resources/asset/avatar.jpg"))
+
+                val result = uploadImageController.getImage("xxx", "xxx.jpg")
+
+                assertThat(result.body).isInstanceOf(InputStreamResource::class.java)
             }
         }
     }
