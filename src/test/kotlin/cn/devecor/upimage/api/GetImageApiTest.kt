@@ -40,14 +40,10 @@ class GetImageApiTest(
         private val testHome = "$userHome$homePath"
         private val imageFolder = "$testHome/$subpath"
 
-        @BeforeEach
-        fun setup() {
-            File(imageFolder).mkdir()
-            avatar.file.copyTo(File("$imageFolder/$filename"))
-        }
-
         @Test
         fun `should return 200`() {
+            avatar.file.copyTo(File("$imageFolder/$filename"))
+
             val result = restTemplate.getForEntity<Resource>("/get/image/1634454401079/avatar.jpg")
 
             assertThat(result.statusCode).isEqualTo(HttpStatus.OK)
