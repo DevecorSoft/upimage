@@ -11,3 +11,13 @@ docker run \
 -v /var/run/docker.sock:/var/run/docker.sock \
 jenkinsci/blueocean
 ```
+
+## configure multiple branch pipeline
+
+## enable webhooks on github
+
+http://host:port/github-webhook/
+
+## install build monitor view
+
+`Manage Jenkins` -> `Manage Plugins` -> `available`
