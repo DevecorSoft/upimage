@@ -27,6 +27,9 @@ jobs:
       - name: Read upimage version
         run: |
           chmod a+x ./gradlew
+          ./gradlew properties
+          ./gradlew properties | grep -e ^version
+          ./gradlew properties | grep -e ^version | grep -e \\d\.\\d\.\\d\* -o
           echo "UPIMAGE_VERSION=$(./gradlew properties | grep -e ^version | grep -e \\d\.\\d\.\\d\* -o)" >> $GITHUB_ENV
 
       - name: Read latest tag
