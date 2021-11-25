@@ -1,5 +1,7 @@
 # upimage
 
+[![ci/cd](https://github.com/Devecor/upimage/actions/workflows/ci.yml/badge.svg)](https://github.com/Devecor/upimage/actions/workflows/ci.yml)
+
 a tiny server for uploading images based on spring-native and kotlin.
 
 ## Install
