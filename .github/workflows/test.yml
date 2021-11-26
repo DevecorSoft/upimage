@@ -2,7 +2,7 @@ name: test
 on: pull_request
 jobs:
   test-native-build-in-osx:
-    runs-on: macos-latest
+    runs-on: macos-11
     steps:
       - name: Checkout
         uses: actions/checkout@v2
