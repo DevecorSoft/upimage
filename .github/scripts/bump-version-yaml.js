@@ -10,9 +10,9 @@ fs.readFile(composeFile, 'utf8', function (err, data) {
     process.exit(1);
   }
   const compose = YAML.load(data)
-  const image = compose.services.web.image.split(':');
+  const image = compose.services.upimage.image.split(':');
   image[1] = version;
-  compose.services.web.image = image.join(':')
+  compose.services.upimage.image = image.join(':')
 
   fs.writeFileSync(composeFile, YAML.dump(compose))
 });
