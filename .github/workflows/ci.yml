@@ -176,3 +176,32 @@ jobs:
           asset_path: ./build/libs/upimage-${{ env.UPIMAGE_VERSION }}.jar
           asset_name: upimage-${{ env.UPIMAGE_VERSION }}.jar
           asset_content_type: application/zip
+
+  publish-docker-image:
+    needs: tag
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build
+        run: |
+          chmod a+x ./gradlew
+          ./gradlew build
+
+      - name: Read upimage version
+        run: |
+          chmod a+x ./gradlew
+          echo "UPIMAGE_VERSION=$(./gradlew properties | grep -e ^version | grep -Po \\d\.\\d\.\\d\*)" >> $GITHUB_ENV
+
+      - name: Login docker hub
+        run: docker login -u devecor -p ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Build docker image
+        run: docker build -t devecor/upimage:${{ env.UPIMAGE_VERSION }} -t devecor/upimage:latest .
+
+      - name: Pulish docker image
+        run: |
+          docker push devecor/upimage:latest
+          docker push devecor/upimage:${{ env.UPIMAGE_VERSION }}
+          docker logout
