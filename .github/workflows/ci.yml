@@ -61,7 +61,7 @@ jobs:
 
       - name: Bump up docker image version
         run: |
-          npm install -g js-yaml
+          npm install js-yaml
           node .github/scripts/bump-version-yaml.js docker-compose.yml ${{ env.UPIMAGE_VERSION }}
           git add docker-compose.yml
           git config user.name "awesome"
@@ -246,7 +246,7 @@ jobs:
 
       - name: Update docker-compose file
         run: |
-          npm install -g js-yaml
+          npm install js-yaml
           node .github/scripts/update-compose-yaml.js docker-compose.yml services.upimage.environment.upimage_host=${{ secrets.HOST }}
           cp docker-compose.yml docker-compose@next.yml
           rsync -v docker-compose@next.yml ${{ secrets.USER }}@${{ secrets.TARGET_SERVER }}:~/upimage-compose/
