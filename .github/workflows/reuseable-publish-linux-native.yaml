@@ -1,0 +1,109 @@
+on:
+  workflow_call:
+    inputs:
+      upload_url:
+        description: the uploacl url for release
+        required: true
+        type: string
+
+jobs:
+  publish-native-linux:
+    runs-on: ubuntu-latest
+    env:
+      UPLOAD_URL: ${{ inputs.upload_url }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Read upimage version
+        run: |
+          chmod a+x ./gradlew
+          echo "UPIMAGE_VERSION=$(./gradlew properties | grep -e ^version | grep -Po \\d\.\\d\.\\d\*)" >> $GITHUB_ENV
+
+      - name: Install GraalVM
+        run: |
+          curl -s "https://get.sdkman.io" | bash
+          source "$HOME/.sdkman/bin/sdkman-init.sh"
+          sdk install java 21.2.0.r11-grl
+          gu install native-image
+
+      - name: Packpage native
+        run: |
+          chmod a+x ./gradlew
+          ./gradlew nativeBuild
+          mv $PWD/build/native/nativeBuild/upimage upimage
+          zip upimage-linux-${{ env.UPIMAGE_VERSION }}.zip upimage
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ env.UPLOAD_URL }}
+          asset_path: ./upimage-linux-${{ env.UPIMAGE_VERSION }}.zip
+          asset_name: upimage-linux
+          asset_content_type: application/zip
+
+  publish-native-osx:
+    needs: tag
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Read upimage version
+        run: |
+          chmod a+x ./gradlew
+          echo "UPIMAGE_VERSION=$(./gradlew properties | grep -e ^version | grep -Po \\d\.\\d\.\\d\*)" >> $GITHUB_ENV
+
+      - name: Install GraalVM
+        run: |
+          curl -s "https://get.sdkman.io" | bash
+          source "$HOME/.sdkman/bin/sdkman-init.sh"
+          sdk install java 21.2.0.r11-grl
+          gu install native-image
+
+      - name: Packpage native
+        run: |
+          chmod a+x ./gradlew
+          ./gradlew nativeBuild
+          mv $PWD/build/native/nativeBuild/upimage upimage
+          zip upimage-osx-${{ env.UPIMAGE_VERSION }}.zip upimage
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ env.UPLOAD_URL }}
+          asset_path: ./upimage-osx-${{ env.UPIMAGE_VERSION }}.zip
+          asset_name: upimage-osx
+          asset_content_type: application/zip
+
+  publish-jar:
+    needs: tag
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Read upimage version
+        run: |
+          chmod a+x ./gradlew
+          echo "UPIMAGE_VERSION=$(./gradlew properties | grep -e ^version | grep -Po \\d\.\\d\.\\d\*)" >> $GITHUB_ENV
+
+      - name: Build
+        run: |
+          chmod a+x ./gradlew
+          ./gradlew build
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ env.UPLOAD_URL }}
+          asset_path: ./build/libs/upimage-${{ env.UPIMAGE_VERSION }}.jar
+          asset_name: upimage-${{ env.UPIMAGE_VERSION }}.jar
+          asset_content_type: application/zip
