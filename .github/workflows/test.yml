@@ -1,0 +1,21 @@
+name: test
+on: pull_request
+jobs:
+  test-native-build-in-osx:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install GraalVM
+        run: |
+          curl -s "https://get.sdkman.io" | bash
+          source "$HOME/.sdkman/bin/sdkman-init.sh"
+          sdk install java 21.2.0.r11-grl
+          gu install native-image
+
+      - name: Packpage native
+        run: |
+          chmod a+x ./gradlew
+          ./gradlew nativeBuild
+          ls $PWD/build/native/nativeBuild
