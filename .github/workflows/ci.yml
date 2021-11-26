@@ -67,9 +67,7 @@ jobs:
           name: upload_url
 
       - name: Set upload url into env
-        run: |
-          cat upload_url.txt
-          echo "UPLOAD_URL=$(cat upload_url.txt)" >> $GITHUB_ENV
+        run: echo "UPLOAD_URL=$(cat upload_url.txt)" >> $GITHUB_ENV
 
       - name: Read upimage version
         run: |
@@ -113,9 +111,7 @@ jobs:
           name: upload_url
 
       - name: Set upload url into env
-        run: |
-          cat upload_url.txt
-          echo "UPLOAD_URL=$(cat upload_url.txt)" >> $GITHUB_ENV
+        run: echo "UPLOAD_URL=$(cat upload_url.txt)" >> $GITHUB_ENV
 
       - name: Read upimage version
         run: |
@@ -159,9 +155,7 @@ jobs:
           name: upload_url
 
       - name: Set upload url into env
-        run: |
-          cat upload_url.txt
-          echo "UPLOAD_URL=$(cat upload_url.txt)" >> $GITHUB_ENV
+        run: echo "UPLOAD_URL=$(cat upload_url.txt)" >> $GITHUB_ENV
 
       - name: Read upimage version
         run: |
