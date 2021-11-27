@@ -1,11 +1,10 @@
-version: 3.9
+version: '3.9'
 services:
   upimage:
-    image: devecor/upimage:0.0.10
+    image: 'devecor/upimage:0.0.10'
     ports:
       - '8080:8080'
     volumes:
-      - ~/upimage-home:/root/upimage-home
-      - ~/upimage-log.txt:/root/upimage-log.txt
+      - '~/upimage-home:/root/upimage-home'
     environment:
-      upimage_host: http://localhost:8080
+      upimage_host: 'http://localhost:8080'
