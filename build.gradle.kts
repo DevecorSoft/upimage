@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "cn.devecor"
-version = "0.0.10"
+version = "0.0.11"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {

@@ -6,5 +6,6 @@ services:
       - '8080:8080'
     volumes:
       - ~/upimage-home:/root/upimage-home
+      - ~/upimage-log.txt:/root/upimage-log.txt
     environment:
       upimage_host: http://localhost:8080
