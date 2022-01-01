@@ -2,17 +2,16 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
 
 plugins {
-    id("org.springframework.boot") version "2.5.5"
+    id("org.springframework.boot") version "2.6.2"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
-    kotlin("jvm") version "1.5.31"
-    kotlin("plugin.spring") version "1.5.31"
-    id("org.springframework.experimental.aot") version "0.10.3"
-    id("org.graalvm.buildtools.native") version "0.9.3"
+    kotlin("jvm") version "1.6.10"
+    kotlin("plugin.spring") version "1.6.10"
+    id("org.springframework.experimental.aot") version "0.11.1"
 }
 
 group = "cn.devecor"
-version = "0.0.11"
-java.sourceCompatibility = JavaVersion.VERSION_11
+version = "2.0.0"
+java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
     maven { url = uri("https://repo.spring.io/release") }
@@ -32,7 +31,7 @@ dependencies {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
 }
 
@@ -43,12 +42,4 @@ tasks.withType<Test> {
 tasks.withType<BootBuildImage> {
     builder = "paketobuildpacks/builder:tiny"
     environment = mapOf("BP_NATIVE_IMAGE" to "true")
-}
-
-nativeBuild {
-    classpath(tasks.named("processAotResources").get().outputs, tasks.named("compileAotJava").get().outputs)
-}
-
-nativeTest {
-    classpath(tasks.named("processAotTestResources").get().outputs, tasks.named("compileAotTestJava").get().outputs)
 }
