@@ -69,50 +69,6 @@ jobs:
           git commit -m "Bump image version: devecor/upimage:${{ env.UPIMAGE_VERSION }}"
           git push
 
-  publish-native-linux:
-    needs: tag
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Get upload url
-        uses: actions/download-artifact@v2
-        with:
-          name: upload_url
-
-      - name: Set upload url into env
-        run: echo "UPLOAD_URL=$(cat upload_url.txt)" >> $GITHUB_ENV
-
-      - name: Read upimage version
-        run: |
-          chmod a+x ./gradlew
-          echo "UPIMAGE_VERSION=$(./gradlew properties | grep -e ^version | grep -Po \\d\.\\d\.\\d\*)" >> $GITHUB_ENV
-
-      - name: Install GraalVM
-        run: |
-          curl -s "https://get.sdkman.io" | bash
-          source "$HOME/.sdkman/bin/sdkman-init.sh"
-          sdk install java 21.2.0.r11-grl
-          gu install native-image
-
-      - name: Packpage native
-        run: |
-          chmod a+x ./gradlew
-          ./gradlew nativeBuild
-          mv $PWD/build/native/nativeBuild/upimage upimage
-          zip upimage-linux-${{ env.UPIMAGE_VERSION }}.zip upimage
-
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ env.UPLOAD_URL }}
-          asset_path: ./upimage-linux-${{ env.UPIMAGE_VERSION }}.zip
-          asset_name: upimage-linux
-          asset_content_type: application/zip
-
   publish-jar:
     needs: tag
     runs-on: ubuntu-latest
