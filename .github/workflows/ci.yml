@@ -11,6 +11,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Setup JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: 17
+
       - name: Build
         run: |
           chmod a+x ./gradlew
