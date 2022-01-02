@@ -108,8 +108,7 @@ internal class ImageStorageServiceTest {
 
                 val path = imageStorageService.saveImage(multipartFile)
 
-                assertThat(path).isEqualTo("/image/$imageId/$imageName")
-                verify(imageRepository).save(multipartFile, path)
+                assertThat(path).isEqualTo("$host/image/$imageId/$imageName")
             }
         }
 

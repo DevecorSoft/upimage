@@ -28,7 +28,7 @@ class ImageStorageService(
     fun saveImage(image: MultipartFile): String {
         val path =  "/image/${imageIdSupplier.get()}/${image.originalFilename}"
         return if (imgRepository.save(image, path)) {
-            path
+            host + path
         } else {
             ""
         }

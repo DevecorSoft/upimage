@@ -34,6 +34,7 @@ class UploadImageController(
     @CrossOrigin
     @PostMapping("/image")
     fun postImage(file: MultipartFile): ResponseEntity<String> {
-        return ResponseEntity.ok("http://localhost:8080/image/12345678/image.jpg")
+        val url = imageStorageService.saveImage(file)
+        return ResponseEntity.ok(url)
     }
 }

@@ -16,6 +16,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.util.LinkedMultiValueMap
+import java.net.URL
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class PostImageApiTest(
@@ -26,6 +27,7 @@ class PostImageApiTest(
     @DisplayName("given a path to image file")
     inner class GivenAPathToImageFile(
         @Autowired @Value("classpath:/image/image.jpg") private val image: Resource,
+        @Autowired @Value("\${upimage.host}") private val host: String
     ) {
 
         @Nested
@@ -40,10 +42,14 @@ class PostImageApiTest(
                 httpHeaders.contentType = MediaType.MULTIPART_FORM_DATA
                 linkedMultiValueMap.add("file", image)
                 val httpEntity = HttpEntity<LinkedMultiValueMap<String, Any>>(linkedMultiValueMap, httpHeaders)
+
                 val response = testRestTemplate.postForEntity<String>(Endpoints.IMAGE, httpEntity)
 
                 assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-                assertThat(response.body).isEqualTo("http://localhost:8080/image/12345678/image.jpg")
+
+                val actualUrl = URL(response.body!!).toString()
+                val expectUrl = URL(host).toString()
+                assertThat(actualUrl).startsWith(expectUrl)
             }
         }
     }

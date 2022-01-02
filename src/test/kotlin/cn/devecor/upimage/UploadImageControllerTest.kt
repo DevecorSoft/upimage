@@ -6,9 +6,12 @@ import org.junit.jupiter.api.DisplayName
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
+import org.mockito.Mockito.verify
 import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.core.io.InputStreamResource
 import org.springframework.core.io.Resource
@@ -84,6 +87,35 @@ internal class UploadImageControllerTest {
                 assertThat(result.body is InputStreamResource).isTrue
                 assertThat(result.headers.contentType).isEqualTo(MediaType.APPLICATION_OCTET_STREAM)
                 assertThat(result.headers.contentLength).isEqualTo(file.length())
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName("given a multipart file as image")
+    inner class GivenAMultipartFileAsImage {
+        @Nested
+        @DisplayName("when save image via controller")
+        inner class WhenCallControllerWithThisMultipartFile {
+            @Test
+            fun `then should call image storage service`() {
+                uploadImageController.postImage(multipartFile)
+
+                verify(imageStorageService).saveImage(multipartFile)
+            }
+
+            @ParameterizedTest(name = "if service return url {0}")
+            @CsvSource(
+                "http://localhost/12345678/image.png",
+                "https://host:port/path/imageid/name.jpg"
+            )
+            fun `then should return responseEntity with this url`(url: String) {
+                `when`(imageStorageService.saveImage(multipartFile)).thenReturn(url)
+
+                val responseEntity = uploadImageController.postImage(multipartFile)
+
+                assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.OK)
+                assertThat(responseEntity.body).isEqualTo(url)
             }
         }
     }
