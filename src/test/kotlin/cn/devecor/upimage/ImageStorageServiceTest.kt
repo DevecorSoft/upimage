@@ -4,12 +4,15 @@ import cn.devecor.upimage.util.TimeStampSupplier
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import org.mockito.Mock
-import org.mockito.Mockito.`when`
+import org.mockito.Mockito.*
 import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.web.multipart.MultipartFile
 import java.io.File
 import java.util.Calendar
+import java.util.function.Supplier
 
 @ExtendWith(MockitoExtension::class)
 internal class ImageStorageServiceTest {
@@ -23,6 +26,9 @@ internal class ImageStorageServiceTest {
     @Mock
     private lateinit var imageRepository: ImageRepository
 
+    @Mock
+    private lateinit var imageIdSupplier: Supplier<String>
+
     private val host = "http://fake.devecor.cn"
     private val testHome = "unittest"
 
@@ -30,7 +36,7 @@ internal class ImageStorageServiceTest {
 
     @BeforeEach
     fun setup() {
-        imageStorageService = ImageStorageService(host, imageRepository, timeStampSupplier)
+        imageStorageService = ImageStorageService(host, imageRepository, timeStampSupplier, imageIdSupplier)
     }
 
     @Test
@@ -74,11 +80,52 @@ internal class ImageStorageServiceTest {
 
                 `when`(imageRepository.get(expectedFile.path)).thenReturn(expectedFile)
 
-                val imageStorageService = ImageStorageService(host, imageRepository, timeStampSupplier)
                 val file = imageStorageService.getImage(expectedFile.path)
 
                 assertThat(file).isFile
                 assertThat(file).isEqualTo(expectedFile)
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName("given multipart file")
+    inner class GivenMultipartFile {
+
+        @Nested
+        @DisplayName("when successfully save it by image storage service")
+        inner class WhenSaveItByImageStorageService {
+
+            @ParameterizedTest(name = "save image with image id {0} and image name {1}")
+            @CsvSource(
+                "12345678, image.png",
+                "31244556, picture.jpg"
+            )
+            fun `then return path to image it saved`(imageId: String, imageName: String) {
+                `when`(imageIdSupplier.get()).thenReturn(imageId)
+                `when`(multipartFile.originalFilename).thenReturn(imageName)
+                `when`(imageRepository.save(multipartFile, "/image/$imageId/$imageName")).thenReturn(true)
+
+                val path = imageStorageService.saveImage(multipartFile)
+
+                assertThat(path).isEqualTo("/image/$imageId/$imageName")
+                verify(imageRepository).save(multipartFile, path)
+            }
+        }
+
+        @Nested
+        @DisplayName("when save it fails")
+        inner class WhenSaveItFails {
+
+            @Test
+            fun `should return empty string`() {
+                `when`(imageIdSupplier.get()).thenReturn("12345678")
+                `when`(multipartFile.originalFilename).thenReturn("image.jpg")
+                `when`(imageRepository.save(multipartFile, "/image/12345678/image.jpg")).thenReturn(false)
+
+                val path = imageStorageService.saveImage(multipartFile)
+
+                assertThat(path).isEmpty()
             }
         }
     }
