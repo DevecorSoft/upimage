@@ -82,6 +82,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Setup JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: 17
+
       - name: Get upload url
         uses: actions/download-artifact@v2
         with:
@@ -116,6 +122,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      - name: Setup JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: 17
 
       - name: Build
         run: |
