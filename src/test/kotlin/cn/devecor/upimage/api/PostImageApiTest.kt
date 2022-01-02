@@ -31,14 +31,14 @@ class PostImageApiTest(
     ) {
 
         @Nested
-        @DisplayName("when post ${Endpoints.IMAGE}")
+        @DisplayName("when post ${Endpoints.IMAGE} without failure")
         inner class WhenPostImage {
 
             private val httpHeaders = HttpHeaders()
             private val linkedMultiValueMap = LinkedMultiValueMap<String, Any>()
 
             @Test
-            fun `should get an image link`() {
+            fun `then should get an image link with 200`() {
                 httpHeaders.contentType = MediaType.MULTIPART_FORM_DATA
                 linkedMultiValueMap.add("file", image)
                 val httpEntity = HttpEntity<LinkedMultiValueMap<String, Any>>(linkedMultiValueMap, httpHeaders)

@@ -2,6 +2,7 @@ package cn.devecor.upimage
 
 import org.springframework.core.io.InputStreamResource
 import org.springframework.core.io.Resource
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -35,6 +36,10 @@ class UploadImageController(
     @PostMapping("/image")
     fun postImage(file: MultipartFile): ResponseEntity<String> {
         val url = imageStorageService.saveImage(file)
-        return ResponseEntity.ok(url)
+        return if (url.isNotEmpty()) {
+            ResponseEntity.ok(url)
+        } else {
+            ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build()
+        }
     }
 }

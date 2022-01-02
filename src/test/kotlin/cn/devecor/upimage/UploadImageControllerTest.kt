@@ -1,9 +1,8 @@
 package cn.devecor.upimage
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.DisplayName
-
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
@@ -11,7 +10,6 @@ import org.junit.jupiter.params.provider.CsvSource
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
-import org.mockito.Mockito.verify
 import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.core.io.InputStreamResource
 import org.springframework.core.io.Resource
@@ -99,9 +97,8 @@ internal class UploadImageControllerTest {
         inner class WhenCallControllerWithThisMultipartFile {
             @Test
             fun `then should call image storage service`() {
+                `when`(imageStorageService.saveImage(multipartFile)).thenReturn("")
                 uploadImageController.postImage(multipartFile)
-
-                verify(imageStorageService).saveImage(multipartFile)
             }
 
             @ParameterizedTest(name = "if service return url {0}")
@@ -109,13 +106,23 @@ internal class UploadImageControllerTest {
                 "http://localhost/12345678/image.png",
                 "https://host:port/path/imageid/name.jpg"
             )
-            fun `then should return responseEntity with this url`(url: String) {
+            fun `then should return the url with 200`(url: String) {
                 `when`(imageStorageService.saveImage(multipartFile)).thenReturn(url)
 
                 val responseEntity = uploadImageController.postImage(multipartFile)
 
                 assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.OK)
                 assertThat(responseEntity.body).isEqualTo(url)
+            }
+
+            @Test
+            fun `then should return just 503 if empty string returned by service`() {
+                `when`(imageStorageService.saveImage(multipartFile)).thenReturn("")
+
+                val responseEntity = uploadImageController.postImage(multipartFile)
+
+                assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE)
+                assertThat(responseEntity.body).isNull()
             }
         }
     }
