@@ -1,7 +1,9 @@
 package cn.devecor.upimage.api
 
 import cn.devecor.upimage.Endpoints
+import cn.devecor.upimage.ImageRepository
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -20,7 +22,7 @@ import java.net.URL
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class PostImageApiTest(
-    @Autowired private val testRestTemplate: TestRestTemplate
+    @Autowired private val testRestTemplate: TestRestTemplate,
 ) {
 
     @Nested
@@ -32,16 +34,26 @@ class PostImageApiTest(
 
         @Nested
         @DisplayName("when post ${Endpoints.IMAGE} without failure")
-        inner class WhenPostImage {
+        inner class WhenPostImage(
+            @Autowired private val imageRepository: ImageRepository
+        ) {
 
             private val httpHeaders = HttpHeaders()
             private val linkedMultiValueMap = LinkedMultiValueMap<String, Any>()
 
-            @Test
-            fun `then should get an image link with 200`() {
+            private lateinit var httpEntity: HttpEntity<LinkedMultiValueMap<String, Any>>
+
+            @BeforeEach
+            fun `set up`() {
+                httpHeaders.clear()
+                linkedMultiValueMap.clear()
                 httpHeaders.contentType = MediaType.MULTIPART_FORM_DATA
                 linkedMultiValueMap.add("file", image)
-                val httpEntity = HttpEntity<LinkedMultiValueMap<String, Any>>(linkedMultiValueMap, httpHeaders)
+                httpEntity = HttpEntity<LinkedMultiValueMap<String, Any>>(linkedMultiValueMap, httpHeaders)
+            }
+
+            @Test
+            fun `then should get an image link with 200`() {
 
                 val response = testRestTemplate.postForEntity<String>(Endpoints.IMAGE, httpEntity)
 
@@ -50,6 +62,13 @@ class PostImageApiTest(
                 val actualUrl = URL(response.body!!).toString()
                 val expectUrl = URL(host).toString()
                 assertThat(actualUrl).startsWith(expectUrl)
+            }
+
+            @Test
+            fun `then target image should exist in dedicate path`() {
+                val response = testRestTemplate.postForEntity<String>(Endpoints.IMAGE, httpEntity)
+
+                assertThat(imageRepository.get(URL(response.body).path)).exists()
             }
         }
     }

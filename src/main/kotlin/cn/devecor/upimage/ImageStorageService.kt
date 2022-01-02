@@ -15,6 +15,7 @@ class ImageStorageService(
     private val timeStampSupplier: TimeStampSupplier,
     private val imageIdSupplier: Supplier<String>
 ) {
+    private val imageFolderName = "/image"
 
     @Deprecated(message = "2021/1/1")
     fun handleImage(file: MultipartFile): String {
@@ -23,10 +24,10 @@ class ImageStorageService(
         return MarkdownImg(file.originalFilename!!, "$host$path/${file.originalFilename}").link
     }
 
-    fun getImage(subPath: String) = imgRepository.get(subPath)
+    fun getImage(subPath: String) = imgRepository.get(imageFolderName + subPath)
 
     fun saveImage(image: MultipartFile): String {
-        val path =  "/image/${imageIdSupplier.get()}/${image.originalFilename}"
+        val path = "$imageFolderName/${imageIdSupplier.get()}/${image.originalFilename}"
         return if (imgRepository.save(image, path)) {
             host + path
         } else {

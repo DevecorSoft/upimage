@@ -83,7 +83,7 @@ internal class UploadImageControllerTest {
                 val result = uploadImageController.getImage("xxx", "xxx.jpg")
 
                 assertThat(result.body is InputStreamResource).isTrue
-                assertThat(result.headers.contentType).isEqualTo(MediaType.APPLICATION_OCTET_STREAM)
+                assertThat(result.headers.contentType).isEqualTo(MediaType.MULTIPART_FORM_DATA)
                 assertThat(result.headers.contentLength).isEqualTo(file.length())
             }
         }

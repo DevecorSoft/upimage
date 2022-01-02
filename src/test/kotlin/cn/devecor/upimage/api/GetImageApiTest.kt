@@ -1,5 +1,6 @@
 package cn.devecor.upimage.api
 
+import cn.devecor.upimage.Endpoints
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -10,25 +11,21 @@ import org.springframework.boot.test.web.client.getForEntity
 import org.springframework.core.io.Resource
 import org.springframework.http.HttpStatus
 import java.io.File
+import java.util.function.Supplier
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@DisplayName("get /image")
+@DisplayName("get " + Endpoints.IMAGE)
 class GetImageApiTest(
     @Autowired private val restTemplate: TestRestTemplate,
     @Autowired @Value("classpath:/asset/avatar.jpg") private val avatar: Resource,
-    @Autowired @Value("\${upimage.home}") private val homePath: String,
-    @Autowired @Value("\${user.home}") private val userHome: String,
+    @Autowired private val upimageHomeSupplier: Supplier<String>
 ) {
-
-    private val subpath = "1634454401079"
-    private val filename = "avatar.jpg"
-
     @Nested
     @DisplayName("when image is not existed")
     inner class NotExisted {
         @Test
         fun `should return 404`() {
-            val result = restTemplate.getForEntity<Resource>("/get/image/$subpath/$filename")
+            val result = restTemplate.getForEntity<Resource>("/get/image/not/exist.jpg")
 
             assertThat(result.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
         }
@@ -37,14 +34,12 @@ class GetImageApiTest(
     @Nested
     @DisplayName("when image is existed")
     inner class Existed {
-        private val testHome = "$userHome$homePath"
-        private val imageFolder = "$testHome/$subpath"
 
         @Test
         fun `should return 200`() {
-            avatar.file.copyTo(File("$imageFolder/$filename"))
+            avatar.file.copyTo(File("${upimageHomeSupplier.get()}/image/1634454401079/avatar.jpg"))
 
-            val result = restTemplate.getForEntity<Resource>("/get/image/1634454401079/avatar.jpg")
+            val result = restTemplate.getForEntity<Resource>("/image/1634454401079/avatar.jpg")
 
             assertThat(result.statusCode).isEqualTo(HttpStatus.OK)
         }
@@ -52,7 +47,7 @@ class GetImageApiTest(
         @BeforeEach
         @AfterEach
         fun cleanTestFolder() {
-            File(testHome).deleteRecursively()
+            File(upimageHomeSupplier.get()).deleteRecursively()
         }
     }
 }

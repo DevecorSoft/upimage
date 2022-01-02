@@ -1,23 +1,22 @@
 package cn.devecor.upimage
 
-import org.springframework.beans.factory.annotation.Value
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import org.springframework.web.multipart.MultipartFile
 import java.io.File
 import java.io.IOException
+import java.util.function.Supplier
 
 @Repository
 class ImageRepository(
-    @Value("\${upimage.home}")
-    private val homePath: String,
-    @Value("\${user.home}")
-    private val userHome: String,
+    @Qualifier("upimageHomeSupplier")
+    private val upimageHome: Supplier<String>,
 ) {
 
     fun save(file: MultipartFile, path: String): Boolean {
-        val dest = File("$userHome$homePath$path/${file.originalFilename}")
-        if (!dest.exists()) {
-            dest.mkdirs()
+        val dest = File("${upimageHome.get()}$path")
+        if (!dest.mkdirs()) {
+            return false
         }
         return try {
             file.transferTo(dest)
@@ -30,7 +29,7 @@ class ImageRepository(
     }
 
     fun get(filepath: String): File? {
-        val file = File("$userHome$homePath$filepath")
+        val file = File("${upimageHome.get()}$filepath")
         return if (file.exists()) file else null
     }
 }

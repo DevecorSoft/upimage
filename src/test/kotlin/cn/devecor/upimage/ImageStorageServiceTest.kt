@@ -53,37 +53,17 @@ internal class ImageStorageServiceTest {
     }
 
     @Nested
-    @DisplayName("get image")
+    @DisplayName("given an image path")
     inner class GetImage {
 
         @Nested
-        @DisplayName("when image file is not existed")
+        @DisplayName("when fetch image with the path via image storage service")
         inner class ImageNotExisted {
             @Test
-            fun `should return a null`() {
+            fun `then should call image repository`() {
+                imageStorageService.getImage("/path/image.png")
 
-                `when`(imageRepository.get("")).thenReturn(null)
-
-                val file = imageStorageService.getImage("")
-
-                assertThat(file).isNull()
-            }
-        }
-
-        @Nested
-        @DisplayName("when image file is existed")
-        inner class ImageExisted {
-
-            @Test
-            fun `should return an image file`() {
-                val expectedFile = createFile()
-
-                `when`(imageRepository.get(expectedFile.path)).thenReturn(expectedFile)
-
-                val file = imageStorageService.getImage(expectedFile.path)
-
-                assertThat(file).isFile
-                assertThat(file).isEqualTo(expectedFile)
+                verify(imageRepository).get("/image/path/image.png")
             }
         }
     }

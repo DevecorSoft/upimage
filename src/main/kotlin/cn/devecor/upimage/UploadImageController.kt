@@ -28,7 +28,7 @@ class UploadImageController(
 
         return ResponseEntity.ok()
             .contentLength(file.length())
-            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+            .contentType(MediaType.MULTIPART_FORM_DATA)
             .body(InputStreamResource(FileInputStream(file)))
     }
 

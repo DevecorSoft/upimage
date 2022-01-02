@@ -1,5 +1,5 @@
 upimage:
-  home: '/upimage'
+  home: '~/upimage'
   host: 'http://localhost:8080'
 
 
