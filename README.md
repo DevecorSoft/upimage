@@ -47,6 +47,8 @@ services:
       upimage_host: http://localhost:8080
 ```
 
+[upimage dockerhub](https://hub.docker.com/r/devecor/upimage/tags)
+
 ## APIs
 
 * post `/image`

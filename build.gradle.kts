@@ -5,10 +5,11 @@ plugins {
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     kotlin("jvm") version "1.6.10"
     kotlin("plugin.spring") version "1.6.10"
+    jacoco
 }
 
 group = "cn.devecor"
-version = "2.1.7"
+version = "2.1.8"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
@@ -35,4 +36,14 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+tasks.test {
+    finalizedBy(tasks.jacocoTestReport)
+}
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        csv.required.set(true)
+    }
 }
