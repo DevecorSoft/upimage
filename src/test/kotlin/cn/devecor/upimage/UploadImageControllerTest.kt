@@ -24,6 +24,9 @@ internal class UploadImageControllerTest {
     private lateinit var imageStorageService: ImageStorageService
 
     @Mock
+    private lateinit var imageMediaTypeService: ImageMediaTypeService
+
+    @Mock
     private lateinit var multipartFile: MultipartFile
 
     @InjectMocks
@@ -79,11 +82,12 @@ internal class UploadImageControllerTest {
             fun `should return an instance of inputStreamResource as body`() {
                 val file = File("src/test/resources/asset/avatar.jpg")
                 `when`(imageStorageService.getImage("/xxx/xxx.jpg")).thenReturn(file)
+                `when`(imageMediaTypeService.getMediaType("avatar.jpg")).thenReturn(MediaType.IMAGE_JPEG)
 
                 val result = uploadImageController.getImage("xxx", "xxx.jpg")
 
                 assertThat(result.body is InputStreamResource).isTrue
-                assertThat(result.headers.contentType).isEqualTo(MediaType.MULTIPART_FORM_DATA)
+                assertThat(result.headers.contentType).isEqualTo(MediaType.IMAGE_JPEG)
                 assertThat(result.headers.contentLength).isEqualTo(file.length())
             }
         }

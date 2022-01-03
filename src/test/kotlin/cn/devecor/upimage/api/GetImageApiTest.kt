@@ -10,6 +10,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.client.getForEntity
 import org.springframework.core.io.Resource
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import java.io.File
 import java.util.function.Supplier
 
@@ -36,12 +37,13 @@ class GetImageApiTest(
     inner class Existed {
 
         @Test
-        fun `should return 200`() {
+        fun `should return 200 with proper media type`() {
             avatar.file.copyTo(File("${upimageHomeSupplier.get()}/image/1634454401079/avatar.jpg"))
 
             val result = restTemplate.getForEntity<Resource>("/image/1634454401079/avatar.jpg")
 
             assertThat(result.statusCode).isEqualTo(HttpStatus.OK)
+            assertThat(result.headers.contentType).isEqualTo(MediaType.IMAGE_JPEG)
         }
 
         @BeforeEach

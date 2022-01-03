@@ -11,7 +11,8 @@ import java.io.FileInputStream
 
 @RestController
 class UploadImageController(
-    private val imageStorageService: ImageStorageService
+    private val imageStorageService: ImageStorageService,
+    private val imageMediaTypeService: ImageMediaTypeService
 ) {
 
     @CrossOrigin
@@ -29,7 +30,7 @@ class UploadImageController(
 
         return ResponseEntity.ok()
             .contentLength(file.length())
-            .contentType(MediaType.MULTIPART_FORM_DATA)
+            .contentType(imageMediaTypeService.getMediaType(file.name))
             .body(InputStreamResource(FileInputStream(file)))
     }
 
