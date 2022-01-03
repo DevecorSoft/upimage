@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "cn.devecor"
-version = "2.1.8"
+version = "2.1.9"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {

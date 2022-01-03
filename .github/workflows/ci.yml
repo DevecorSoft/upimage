@@ -22,11 +22,11 @@ jobs:
           chmod a+x ./gradlew
           ./gradlew build
 
-      - name: Generate JaCoCo Badge
-        uses: cicirello/jacoco-badge-generator@v2
+      - name: Share jacoco test report with other jobs
+        uses: actions/upload-artifact@v2
         with:
-          generate-branches-badge: true
-          jacoco-csv-file: build/reports/jacoco/test/jacocoTestReport.csv
+          name: jacoco_test_report
+          path: jacoco_test_report.csv
 
   tag:
     needs: build
@@ -71,11 +71,23 @@ jobs:
         with:
           node-version: '16'
 
+      - name: Get test report
+        uses: actions/download-artifact@v2
+        with:
+          name: jacoco_test_report
+
+      - name: Generate JaCoCo Badge
+        uses: cicirello/jacoco-badge-generator@v2
+        with:
+          generate-branches-badge: true
+          jacoco-csv-file: jacoco_test_report.csv
+
       - name: Bump up docker image version
         run: |
           npm install js-yaml
           node .github/scripts/bump-version-yaml.js docker-compose.yml ${{ env.UPIMAGE_VERSION }}
           git add docker-compose.yml
+          git add .github/badges
           git config user.name "awesome"
           git config user.email "awesome@github.com"
           git commit -m "Bump image version: devecor/upimage:${{ env.UPIMAGE_VERSION }}"
