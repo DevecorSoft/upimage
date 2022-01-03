@@ -1,8 +1,7 @@
 name: ci/cd
 
 on:
-  push:
-    branches: [ main ]
+  pull_request
 
 jobs:
   build:
@@ -26,7 +25,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: jacoco_test_report
-          path: jacoco_test_report.csv
+          path: build/reports/jacoco/test/jacocoTestReport.csv
 
   tag:
     needs: build
@@ -43,19 +42,6 @@ jobs:
 
       - name: Read latest tag
         run: echo "TAG=$(git tag -l v${{ env.UPIMAGE_VERSION }})" >> $GITHUB_ENV
-
-      - name: Verify version
-        if: ${{ env.TAG != '' }}
-        run: exit 1
-
-      - name: Create release with tag
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ env.UPIMAGE_VERSION }}
-          release_name: v${{ env.UPIMAGE_VERSION }}
 
       - name: Set upload url
         run: echo "${{ steps.create_release.outputs.upload_url }}" > upload_url.txt
@@ -80,7 +66,7 @@ jobs:
         uses: cicirello/jacoco-badge-generator@v2
         with:
           generate-branches-badge: true
-          jacoco-csv-file: jacoco_test_report.csv
+          jacoco-csv-file: build/reports/jacoco/test/jacocoTestReport.csv
 
       - name: Bump up docker image version
         run: |
@@ -88,126 +74,8 @@ jobs:
           node .github/scripts/bump-version-yaml.js docker-compose.yml ${{ env.UPIMAGE_VERSION }}
           git add docker-compose.yml
           git add .github/badges
+          ls .github/badges
           git config user.name "awesome"
           git config user.email "awesome@github.com"
           git commit -m "Bump image version: devecor/upimage:${{ env.UPIMAGE_VERSION }}"
-          git push
-
-  publish-jar:
-    needs: tag
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Setup JDK
-        uses: actions/setup-java@v2
-        with:
-          distribution: 'temurin'
-          java-version: 17
-
-      - name: Get upload url
-        uses: actions/download-artifact@v2
-        with:
-          name: upload_url
-
-      - name: Set upload url into env
-        run: echo "UPLOAD_URL=$(cat upload_url.txt)" >> $GITHUB_ENV
-
-      - name: Read upimage version
-        run: |
-          chmod a+x ./gradlew
-          echo "UPIMAGE_VERSION=$(./gradlew properties | grep -e ^version | grep -Po \\d\.\\d\.\\d\*)" >> $GITHUB_ENV
-
-      - name: Build
-        run: |
-          chmod a+x ./gradlew
-          ./gradlew build
-
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ env.UPLOAD_URL }}
-          asset_path: ./build/libs/upimage-${{ env.UPIMAGE_VERSION }}.jar
-          asset_name: upimage-${{ env.UPIMAGE_VERSION }}.jar
-          asset_content_type: application/zip
-
-  publish-docker-image:
-    needs: tag
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Setup JDK
-        uses: actions/setup-java@v2
-        with:
-          distribution: 'temurin'
-          java-version: 17
-
-      - name: Build
-        run: |
-          chmod a+x ./gradlew
-          ./gradlew build
-
-      - name: Read upimage version
-        run: |
-          chmod a+x ./gradlew
-          echo "UPIMAGE_VERSION=$(./gradlew properties | grep -e ^version | grep -Po \\d\.\\d\.\\d\*)" >> $GITHUB_ENV
-
-      - name: Login docker hub
-        run: docker login -u devecor -p ${{ secrets.DOCKER_TOKEN }}
-
-      - name: Build docker image
-        run: docker build -t devecor/upimage:${{ env.UPIMAGE_VERSION }} -t devecor/upimage:latest .
-
-      - name: Pulish docker image
-        run: |
-          docker push devecor/upimage:latest
-          docker push devecor/upimage:${{ env.UPIMAGE_VERSION }}
-          docker logout
-
-  deploy:
-    needs: publish-docker-image
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          ref: 'main'
-
-      - name: Install ssh-key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          eval "$(ssh-agent -s)"
-          ssh-add ~/.ssh/id_ed25519
-          ssh-keyscan "${{ secrets.TARGET_SERVER }}" >> ~/.ssh/known_hosts
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v2
-        with:
-          node-version: '16'
-
-      - name: Update docker-compose file
-        run: |
-          npm install js-yaml
-          node .github/scripts/update-compose-yaml.js docker-compose.yml "services.upimage.environment.upimage_host=${{ secrets.UPIMAGE_HOST }}"
-          cp docker-compose.yml docker-compose@next.yml
-          rsync -v docker-compose@next.yml ${{ secrets.USER }}@${{ secrets.TARGET_SERVER }}:~/upimage-compose/
-
-      - name: Service up
-        run: |
-          ssh ${{ secrets.USER }}@${{ secrets.TARGET_SERVER }} "
-            cd upimage-compose;
-            docker compose down;
-            mv docker-compose@next.yml docker-compose.yml;
-            docker compose up -d;
-            docker logout;
-          "
-
-      - name: Delete ssh-key
-        run: rm ~/.ssh/id_ed25519
+#          git push
