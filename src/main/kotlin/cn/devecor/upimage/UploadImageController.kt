@@ -16,6 +16,7 @@ class UploadImageController(
 
     @CrossOrigin
     @PostMapping(Endpoints.UPLOAD_IMAGE)
+    @Deprecated("2021/1/3")
     fun handleImageUpload(file: MultipartFile): ResponseEntity<String> {
         return ResponseEntity.ok(imageStorageService.handleImage(file))
     }

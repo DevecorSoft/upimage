@@ -7,11 +7,12 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.mockito.Mock
-import org.mockito.Mockito.*
+import org.mockito.Mockito.`when`
+import org.mockito.Mockito.verify
 import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.web.multipart.MultipartFile
 import java.io.File
-import java.util.Calendar
+import java.util.*
 import java.util.function.Supplier
 
 @ExtendWith(MockitoExtension::class)
@@ -58,7 +59,7 @@ internal class ImageStorageServiceTest {
 
         @Nested
         @DisplayName("when fetch image with the path via image storage service")
-        inner class ImageNotExisted {
+        inner class WhenFetchImageWithThePathViaImageStorageService {
             @Test
             fun `then should call image repository`() {
                 imageStorageService.getImage("/path/image.png")
@@ -107,13 +108,6 @@ internal class ImageStorageServiceTest {
                 assertThat(path).isEmpty()
             }
         }
-    }
-
-    private fun createFile(): File {
-        File(testHome).mkdir()
-        val expectedFile = File("$testHome/text.txt")
-        expectedFile.writeText("")
-        return expectedFile
     }
 
     @BeforeEach
