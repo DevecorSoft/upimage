@@ -19,9 +19,9 @@ class ImageStorageService(
 
     @Deprecated(message = "2021/1/1")
     fun handleImage(file: MultipartFile): String {
-        val path = "/${timeStampSupplier.get()}"
+        val path = "/${timeStampSupplier.get()}/${file.originalFilename}"
         imgRepository.save(file, path)
-        return MarkdownImg(file.originalFilename!!, "$host$path/${file.originalFilename}").link
+        return MarkdownImg(file.originalFilename!!, "$host$path").link
     }
 
     fun getImage(subPath: String) = imgRepository.get(imageFolderName + subPath)

@@ -91,7 +91,7 @@ services:
           }
           ```
 
-* post `/upload/image`    **Deprecated**
+* ~~post /upload/image~~    **Deprecated**
     * description: upload images by form-data
     * response: `![image_name.jpg](link)`
     * example:

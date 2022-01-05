@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.util.LinkedMultiValueMap
 import java.io.File
+import java.net.URL
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -34,9 +35,17 @@ class UpImageApiTest(
         images.add("file", avatar)
         val httpEntity = HttpEntity<LinkedMultiValueMap<String, Any>>(images, headers)
 
-        val link = restTemplate.postForEntity<String>(Endpoints.UPLOAD_IMAGE, httpEntity)
+        val responseEntity = restTemplate.postForEntity<String>(Endpoints.UPLOAD_IMAGE, httpEntity)
 
-        assertThat(link.statusCode).isEqualTo(HttpStatus.OK)
+        assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.OK)
+
+        val url = responseEntity.body!!.split("(").last()
+        val urlPath = URL(url.substring(0, url.length - 1)).path
+        val filePath = "${System.getenv("HOME")}/upimage/$urlPath"
+
+        assertThat(urlPath).endsWith("avatar.jpg")
+        assertThat(File(filePath)).exists()
+        assertThat(File(filePath)).isFile
     }
 
     @AfterEach
