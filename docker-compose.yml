@@ -1,7 +1,7 @@
 version: '3.9'
 services:
   upimage:
-    image: devecor/upimage:2.1.11
+    image: devecor/upimage:2.0.12
     ports:
       - '8080:8080'
     volumes:
