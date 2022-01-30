@@ -16,6 +16,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 17
+          cache: 'gradle'
 
       - name: Build
         run: |
@@ -39,7 +40,7 @@ jobs:
       - name: Read upimage version
         run: |
           chmod a+x ./gradlew
-          echo "UPIMAGE_VERSION=$(./gradlew properties | grep -e ^version | grep -Po \\d\.\\d\.\\d\*)" >> $GITHUB_ENV
+          echo "UPIMAGE_VERSION=$(node .github/scripts/read-version.js version.yml)" >> $GITHUB_ENV
 
       - name: Read latest tag
         run: echo "TAG=$(git tag -l v${{ env.UPIMAGE_VERSION }})" >> $GITHUB_ENV
@@ -70,6 +71,7 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '16'
+          cache: 'npm'
 
       - name: Get test report
         uses: actions/download-artifact@v2
@@ -105,6 +107,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 17
+          cache: 'gradle'
 
       - name: Get upload url
         uses: actions/download-artifact@v2
@@ -117,7 +120,7 @@ jobs:
       - name: Read upimage version
         run: |
           chmod a+x ./gradlew
-          echo "UPIMAGE_VERSION=$(./gradlew properties | grep -e ^version | grep -Po \\d\.\\d\.\\d\*)" >> $GITHUB_ENV
+          echo "UPIMAGE_VERSION=$(node .github/scripts/read-version.js version.yml)" >> $GITHUB_ENV
 
       - name: Build
         run: |
@@ -130,7 +133,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ env.UPLOAD_URL }}
-          asset_path: ./build/libs/upimage-${{ env.UPIMAGE_VERSION }}.jar
+          asset_path: ./build/libs/upimage.jar
           asset_name: upimage-${{ env.UPIMAGE_VERSION }}.jar
           asset_content_type: application/zip
 
@@ -146,6 +149,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 17
+          cache: 'gradle'
 
       - name: Build
         run: |
@@ -154,8 +158,7 @@ jobs:
 
       - name: Read upimage version
         run: |
-          chmod a+x ./gradlew
-          echo "UPIMAGE_VERSION=$(./gradlew properties | grep -e ^version | grep -Po \\d\.\\d\.\\d\*)" >> $GITHUB_ENV
+          echo "UPIMAGE_VERSION=$(node .github/scripts/read-version.js version.yml)" >> $GITHUB_ENV
 
       - name: Login docker hub
         run: docker login -u devecor -p ${{ secrets.DOCKER_TOKEN }}
@@ -191,11 +194,13 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '16'
+          cache: 'npm'
 
       - name: Update docker-compose file
         run: |
           npm install js-yaml
           node .github/scripts/update-compose-yaml.js docker-compose.yml "services.upimage.environment.upimage_host=${{ secrets.UPIMAGE_HOST }}"
+          node .github/scripts/update-compose-yaml.js docker-compose.yml "services.upimage.ports=${{ secrets.PORTS }}"
           cp docker-compose.yml docker-compose@next.yml
           rsync -v docker-compose@next.yml ${{ secrets.USER }}@${{ secrets.TARGET_SERVER }}:~/upimage-compose/
 
