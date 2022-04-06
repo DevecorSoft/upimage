@@ -185,7 +185,7 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           eval "$(ssh-agent -s)"
           ssh-add ~/.ssh/id_ed25519
-          ssh-keyscan "${{ secrets.TARGET_SERVER }}" >> ~/.ssh/known_hosts
+          ssh-keyscan -H "${{ secrets.TARGET_SERVER }}" >> ~/.ssh/known_hosts
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v2
@@ -207,7 +207,50 @@ jobs:
             docker compose down;
             mv docker-compose@next.yml docker-compose.yml;
             docker compose up -d;
-            docker logout;
+          "
+
+      - name: Delete ssh-key
+        run: rm ~/.ssh/id_ed25519
+
+  release-to-production:
+    needs: release-to-staging
+    runs-on: [ self-hosted, remote ]
+    environment: prod
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: 'main'
+
+      - name: Install ssh-key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          eval "$(ssh-agent -s)"
+          ssh-add ~/.ssh/id_ed25519
+          ssh-keyscan -H "${{ secrets.TARGET_SERVER }}" >> ~/.ssh/known_hosts
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Update docker-compose file
+        run: |
+          npm install js-yaml
+          node .github/scripts/update-compose-yaml.js docker-compose.yml "services.upimage.environment.upimage_host=${{ secrets.UPIMAGE_HOST }}"
+          node .github/scripts/update-compose-yaml.js docker-compose.yml "services.upimage.ports=${{ secrets.PROD_PORTS }}"
+          cp docker-compose.yml docker-compose@next.yml
+          rsync -v docker-compose@next.yml ${{ secrets.USER }}@${{ secrets.TARGET_SERVER }}:~/prod-upimage-compose/
+
+      - name: Service up
+        run: |
+          ssh ${{ secrets.USER }}@${{ secrets.TARGET_SERVER }} "
+            cd prod-upimage-compose;
+            docker compose down;
+            mv docker-compose@next.yml docker-compose.yml;
+            docker compose up -d;
           "
 
       - name: Delete ssh-key
