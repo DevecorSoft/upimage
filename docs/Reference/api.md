@@ -1,61 +1,3 @@
-# upimage
-
-[![ci/cd](https://github.com/Devecor/upimage/actions/workflows/ci.yml/badge.svg)](https://github.com/Devecor/upimage/actions/workflows/ci.yml)
-![branches coverage](.github/badges/branches.svg)
-![coverage](.github/badges/jacoco.svg)
-
-
-a tiny server for uploading images based on spring-boot and kotlin.
-
-## Documentation
-
-Please take a look [here](./docs/README.md)!
-
-## Install
-
-### Requirements
-
-* Java 17
-
-### Build
-
-```shell
-cd path/to/upimage
-./gradlew build
-```
-
-### Run server
-
-* use args
-
-```shell
-java -jar upimage-<version>.jar --upimage.host='http://localhost:8080'
-```
-
-* use env
-
-```shell
-export upimage_host=http://localhost:8080
-java -jar upimage-<version>.jar
-```
-
-* use by docker compose
-
-```yaml
-version: '3.9'
-services:
-  upimage:
-    image: devecor/upimage:2.1.5
-    ports:
-      - '8080:8080'
-    volumes:
-      - ~/upimage-home:/root/upimage-home
-    environment:
-      upimage_host: http://localhost:8080
-```
-
-[upimage dockerhub](https://hub.docker.com/r/devecor/upimage/tags)
-
 ## APIs
 
 * post `/image`
@@ -108,4 +50,3 @@ services:
           ```markdown
           ![image.jpg](http://localhost:8080/1634454401079/image.jpg)
           ```
-

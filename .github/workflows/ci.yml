@@ -3,6 +3,12 @@ name: ci/cd
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'src'
+      - 'build.gradle.kts'
+      - 'Dockerfile'
+      - 'settings.gradle.kts'
+      - 'version.txt'
 
 jobs:
   build:
