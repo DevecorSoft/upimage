@@ -13,7 +13,7 @@
 
 ## How to guides
 
-* [Host upimage by yourself]()
+* [Host upimage by yourself](./How-to-guides/host-upimage.md)
 
 ## Reference
 
