@@ -21,10 +21,10 @@ sudo apt install openjdk-17-jdk
 
 And you can download it via `curl` or `wget`:
 ```shell
-curl -L https://github.com/DevecorSoft/upimage/releases/download/v2.0.15/upimage-2.0.15.jar > upimage-2.0.15.jar
+curl -L https://github.com/DevecorSoft/upimage/releases/download/v2.0.17/upimage-2.0.17.jar > upimage-2.0.17.jar
 ```
 ```shell
-wget https://github.com/DevecorSoft/upimage/releases/download/v2.0.15/upimage-2.0.15.jar
+wget https://github.com/DevecorSoft/upimage/releases/download/v2.0.17/upimage-2.0.17.jar
 ```
 
 3. Run upimage service along with upimge_host

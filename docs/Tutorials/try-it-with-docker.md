@@ -7,7 +7,7 @@
 ## Docker cli
 
 ```shell
-docker run -it -p 8080:8080 -e upimage_host="http://localhost:8080" devecor/upimage
+docker run -it -p 8080:8080 -e upimage_host="http://localhost:8080" devecorsoft/upimage
 ```
 
 Now you can upload a picture on a new terminal session:
@@ -40,7 +40,7 @@ Feel free to open this url on your browser!
 version: '3.9'
 services:
   upimage:
-    image: devecor/upimage:2.0.15
+    image: devecor/upimage:2.0.17
     ports:
       - '8080:8080'
     volumes:

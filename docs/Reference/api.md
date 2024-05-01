@@ -2,7 +2,7 @@
 
 * post `/image`
     * description: upload images by form-data
-    * response: link to image
+    * response: the link to image
     * example:
         * request
           ```shell
@@ -21,20 +21,6 @@
         * request
           ```shell
           curl --request GET 'http://localhost:8080/image/image-id/file-name.jpg'
-          ```
-
-* post `/actuator/shutdown`
-    * description: stop server
-    * example:
-        * request
-          ```shell
-          curl --request POST 'http://localhost:8080/actuator/shutdown'
-          ```
-        * response
-          ```json
-          {
-          "message": "Shutting down, bye..."
-          }
           ```
 
 * ~~post /upload/image~~    **Deprecated**
